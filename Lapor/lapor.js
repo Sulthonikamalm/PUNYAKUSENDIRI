@@ -38,12 +38,8 @@
     // INITIALIZE
     // ============================================
     function init() {
-        // Require authentication
-        if (!authManager.requireAuth()) {
-            return; // Will redirect to login
-        }
-
-        console.log('✅ User authenticated:', authManager.getCurrentUser().name);
+        // No authentication required - victims can report anonymously
+        console.log('✅ Public reporting mode - no authentication required');
 
         initChoiceCards();
         initStep1();
