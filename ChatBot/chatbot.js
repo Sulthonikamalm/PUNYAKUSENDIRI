@@ -13,7 +13,7 @@
     // =====================================================
     const ChatBotState = {
         isOpen: false,
-        currentMode: null, // 'guided', 'freetext', 'curhat'
+        currentMode: null, // 'guided' or 'curhat'
         isRecording: false,
         recognition: null,
         sessionId: null,
@@ -191,21 +191,21 @@
             guided: {
                 title: 'Chat Guided',
                 desc: 'Mode Panduan Terstruktur',
-                welcomeMessage: 'Halo! Saya akan membantu Anda membuat laporan dengan pertanyaan terstruktur. Mari kita mulai!',
-            },
-            freetext: {
-                title: 'Chat Free Text',
-                desc: 'Mode Cerita Bebas',
-                welcomeMessage: 'Halo! Ceritakan kejadian yang ingin Anda laporkan dengan bebas. Saya akan memahami dan mengekstrak informasi yang diperlukan.',
+                welcomeMessage: 'Halo! Aku akan bantu kamu buat laporan dengan pertanyaan terstruktur. Mari kita mulai! 📋',
             },
             curhat: {
                 title: 'Chat Curhat',
                 desc: 'Mode Konseling & Dukungan',
-                welcomeMessage: 'Halo! Ini adalah ruang aman untuk Anda bercerita. Saya di sini untuk mendengarkan dan memberikan dukungan. Ceritakan apa yang Anda rasakan.',
+                welcomeMessage: 'Halo! Ini adalah ruang aman untuk kamu. Aku di sini untuk mendengarkan dan memberikan dukungan. 💙',
             },
         };
 
         const config = modeConfig[mode];
+        if (!config) {
+            console.error('[ChatBot] Invalid mode:', mode);
+            return;
+        }
+
         DOM.chatModeTitle.textContent = config.title;
         DOM.chatModeDesc.textContent = config.desc;
 
@@ -223,14 +223,21 @@
         setTimeout(() => {
             switch(mode) {
                 case 'guided':
-                    window.GuidedMode?.start();
-                    break;
-                case 'freetext':
-                    window.FreeTextMode?.start();
+                    if (window.GuidedMode) {
+                        window.GuidedMode.start();
+                    } else {
+                        console.error('[ChatBot] GuidedMode not loaded');
+                    }
                     break;
                 case 'curhat':
-                    window.CurhatMode?.start();
+                    if (window.CurhatMode) {
+                        window.CurhatMode.start();
+                    } else {
+                        console.error('[ChatBot] CurhatMode not loaded');
+                    }
                     break;
+                default:
+                    console.warn('[ChatBot] Unknown mode:', mode);
             }
         }, 500);
     }
@@ -383,14 +390,24 @@
         setTimeout(() => {
             switch(ChatBotState.currentMode) {
                 case 'guided':
-                    window.GuidedMode?.handleUserMessage(text);
-                    break;
-                case 'freetext':
-                    window.FreeTextMode?.handleUserMessage(text);
+                    if (window.GuidedMode) {
+                        window.GuidedMode.handleUserMessage(text);
+                    } else {
+                        hideTypingIndicator();
+                        addBotMessage('Maaf, terjadi kesalahan. Mode guided tidak tersedia.');
+                    }
                     break;
                 case 'curhat':
-                    window.CurhatMode?.handleUserMessage(text);
+                    if (window.CurhatMode) {
+                        window.CurhatMode.handleUserMessage(text);
+                    } else {
+                        hideTypingIndicator();
+                        addBotMessage('Maaf, terjadi kesalahan. Mode curhat tidak tersedia.');
+                    }
                     break;
+                default:
+                    hideTypingIndicator();
+                    addBotMessage('Maaf, mode chat tidak dikenali.');
             }
         }, 800); // Simulate processing delay
     }

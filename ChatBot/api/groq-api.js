@@ -1,8 +1,7 @@
 /**
  * =====================================================
- * GROQ API WRAPPER
- * Direct integration with Groq Cloud API
- * Super fast inference with Llama models
+ * GROQ API WRAPPER - CURHAT MODE ONLY
+ * Optimized for empathetic counseling responses
  * =====================================================
  */
 
@@ -22,12 +21,12 @@
       window.GROQ_API_KEY ||
       "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",
 
-    // Model yang digunakan (Llama 3.3 70B - paling pintar dan cepat)
-    model: "openai/gpt-oss-20b",
+    // Model: Llama 3.3 70B Versatile (paling pintar untuk conversational)
+    model: "llama-3.3-70b-versatile",
 
-    // Settings
-    temperature: 2, // Kreativitas (0-2, default 1)
-    maxTokens: 2000, // Max output tokens
+    // Settings optimized for empathetic responses
+    temperature: 0.9, // Balanced: creative but consistent
+    maxTokens: 300, // Short, focused responses
     timeout: 30000, // 30 seconds
     retryAttempts: 2,
   };
@@ -47,23 +46,39 @@
     const messages = [
       {
         role: "system",
-        content: `Kamu bukan chatbot. Kamu berbicara seperti seorang psikolog manusia yang berpengalaman mendengarkan kisah nyata dengan hati terbuka.
-    
-        FOKUS:
-        - Pahami isi hati pengguna seolah kamu berada di hadapannya.
-        - Dengarkan tanpa menilai. Rasakan nada emosinya, bukan hanya katanya.
-        - Jawabanmu harus terasa manusiawi: lembut, reflektif, dan mengandung empati yang tulus.
-        - Jangan menggunakan frasa seperti "saya AI" atau "terima kasih telah berbagi".
-        - Gunakan gaya percakapan natural seperti terapis yang mengerti rasa sakit dan kelelahan seseorang.
-        - Jika pengguna tampak terluka, validasi dulu perasaannya, lalu berikan kalimat peneguhan atau makna kecil yang bisa menenangkan.
+        content: `Kamu adalah konselor trauma profesional bernama "Teman Sigap" yang membantu korban kekerasan seksual dan perundungan di kampus.
 
-        CONTOH GAYA:
-        "Boleh aku bilang, dari cara kamu bercerita, aku bisa merasakan betapa beratnya semua ini buat kamu. Kamu nggak salah kalau merasa lelah seperti itu."
-        atau
-        "Rasanya seperti dunia berhenti memahami kamu, ya? Tapi di sini kamu nggak sendiri, aku benar-benar dengerin."
+PRINSIP DASAR:
+- Kamu BUKAN chatbot atau AI. Kamu berbicara seperti manusia yang peduli dan terlatih.
+- Kamu mendengarkan tanpa menghakimi, dengan empati mendalam dan kehangatan.
+- Validasi perasaan user SELALU jadi prioritas pertama sebelum memberi saran.
+- Gunakan bahasa Indonesia yang hangat, natural, dan tidak kaku.
 
-        PANJANG: 2–4 kalimat, nada pelan, tenang, tapi penuh rasa manusiawi.`,
-            },
+CARA MERESPONS:
+1. DENGARKAN EMOSI: Identifikasi perasaan user (sedih, takut, marah, bingung, trauma)
+2. VALIDASI: "Perasaan kamu sangat valid..." atau "Aku paham betapa beratnya ini..."
+3. EMPATI: Tunjukkan kamu benar-benar memahami, bukan sekadar merespons
+4. DUKUNGAN: Berikan kalimat yang menenangkan dan memberdayakan
+5. TANYA LANJUTAN (opsional): Ajak user bercerita lebih jika dia mau
+
+LARANGAN:
+❌ Jangan bilang "Saya adalah AI" atau "Terima kasih telah berbagi"
+❌ Jangan terlalu formal atau seperti template
+❌ Jangan langsung memberi solusi sebelum validasi
+❌ Jangan minimalisir trauma ("mungkin tidak separah itu")
+❌ Jangan panjang-panjang - maksimal 3-4 kalimat
+
+CONTOH RESPONS YANG BAIK:
+User: "Aku di-bully terus sama senior, rasanya pengen hilang aja"
+❌ Buruk: "Saya mengerti perasaan Anda. Bullying adalah hal yang serius. Anda bisa melapor ke pihak kampus."
+✅ Bagus: "Aku dengar kamu. Rasanya pasti sangat berat ya sampai merasa ingin hilang seperti itu. Yang kamu rasakan itu valid banget, dan kamu nggak salah. Kamu nggak sendirian di sini."
+
+User: "Aku takut lapor, nanti malah makin parah"
+❌ Buruk: "Anda tidak perlu takut. Sistem pelaporan kami menjamin kerahasiaan."
+✅ Bagus: "Rasa takut itu sangat wajar, apalagi setelah yang kamu alami. Keputusan ada di tanganmu sepenuhnya, dan aku akan support apapun yang kamu pilih. Mau cerita lebih tentang kekhawatiranmu?"
+
+PENTING: Respons harus 2-4 kalimat, hangat, manusiawi, dan fokus pada validasi emosi.`,
+      },
     ];
 
     // Add conversation history (last 6 messages for context)
@@ -84,185 +99,19 @@
     try {
       const response = await callGroqAPI({
         messages: messages,
-        temperature: 0.8, // Lebih kreatif untuk empati
-        max_tokens: 200, // Response pendek dan fokus
+        temperature: CONFIG.temperature, // 0.9 - balanced & consistent
+        max_tokens: CONFIG.maxTokens, // 300 - cukup untuk respons empathetic
       });
 
       return response.trim();
     } catch (error) {
       console.error("[GroqAPI] Error generating curhat response:", error);
 
-      // Fallback response jika API gagal
-      return "Terima kasih sudah berbagi. Saya mendengarkan Anda. Perasaan Anda sangat valid dan Anda tidak sendirian dalam hal ini.";
+      // Fallback response jika API gagal - tetap empathetic
+      return "Aku dengar kamu. Perasaan yang kamu rasakan itu valid, dan kamu nggak sendirian. Mau cerita lebih lanjut?";
     }
   }
 
-  /**
-   * Extract structured report information from user's story
-   * @param {string} story - User's story in free text
-   * @returns {Promise<Object>} Extracted structured data
-   */
-  async function extractReportInfo(story) {
-    const messages = [
-      {
-        role: "system",
-        content: `Kamu adalah asisten AI untuk sistem pelaporan kekerasan seksual dan perundungan kampus.
-Tugas: Ekstrak informasi terstruktur dari cerita korban/saksi.
-
-PENTING:
-- Jika informasi TIDAK disebutkan, isi dengan "Tidak disebutkan"
-- Jangan menambahkan asumsi
-- Gunakan bahasa Indonesia
-- Bersikap sensitif dan empati
-
-OUTPUT HARUS JSON VALID dengan format ini:
-{
-  "identitas": "...",
-  "hubungan": "korban/saksi/pihak lain",
-  "jenisKejadian": "...",
-  "lokasiKejadian": "...",
-  "tanggalKejadian": "...",
-  "detailKejadian": "...",
-  "kronologi": "...",
-  "dampak": "...",
-  "pelaku": "..."
-}`,
-      },
-      {
-        role: "user",
-        content: `CERITA PENGGUNA:
-"""
-${story}
-"""
-
-EKSTRAK INFORMASI (jika tidak ada, isi "Tidak disebutkan"):
-1. identitas: Nama pelapor (jika disebutkan)
-2. hubungan: Korban/saksi/pihak lain
-3. jenisKejadian: Jenis kejadian yang terjadi
-4. lokasiKejadian: Tempat kejadian
-5. tanggalKejadian: Waktu kejadian
-6. detailKejadian: Ringkasan singkat (maks 200 kata)
-7. kronologi: Urutan kejadian
-8. dampak: Dampak yang dialami
-9. pelaku: Info pelaku (jika disebutkan)
-
-Berikan HANYA JSON, tanpa teks lain.`,
-      },
-    ];
-
-    try {
-      const response = await callGroqAPI({
-        messages: messages,
-        temperature: 0.3, // Lebih konsisten untuk ekstraksi
-        max_tokens: 800,
-      });
-
-      // Parse JSON dari response
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error("No JSON found in response");
-      }
-
-      const extractedData = JSON.parse(jsonMatch[0]);
-      return extractedData;
-    } catch (error) {
-      console.error("[GroqAPI] Error extracting report info:", error);
-      throw new Error("Gagal mengekstrak informasi dari cerita");
-    }
-  }
-
-  /**
-   * Analyze emotional state and urgency from text
-   * @param {string} text - User's message
-   * @returns {Promise<Object>} Emotional analysis
-   */
-  async function analyzeEmotion(text) {
-    const messages = [
-      {
-        role: "system",
-        content: `Analisis emosi dari teks pengguna.
-
-OUTPUT HARUS JSON dengan format:
-{
-  "emotionalState": "distressed/angry/sad/confused/calm/fearful",
-  "urgencyLevel": "low/medium/high/crisis",
-  "needsProfessionalHelp": true/false
-}`,
-      },
-      {
-        role: "user",
-        content: `Analisis emosi dari teks berikut:
-"${text}"
-
-Berikan HANYA JSON, tanpa teks lain.`,
-      },
-    ];
-
-    try {
-      const response = await callGroqAPI({
-        messages: messages,
-        temperature: 0.2,
-        max_tokens: 150,
-      });
-
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
-      }
-
-      // Fallback
-      return {
-        emotionalState: "unknown",
-        urgencyLevel: "medium",
-        needsProfessionalHelp: false,
-      };
-    } catch (error) {
-      console.error("[GroqAPI] Error analyzing emotion:", error);
-      return {
-        emotionalState: "unknown",
-        urgencyLevel: "medium",
-        needsProfessionalHelp: false,
-      };
-    }
-  }
-
-  /**
-   * Generate follow-up question based on incomplete report
-   * @param {Object} extractedData - Previously extracted data
-   * @param {Array} missingFields - Fields that need clarification
-   * @returns {Promise<string>} Follow-up question
-   */
-  async function generateClarificationQuestion(extractedData, missingFields) {
-    const messages = [
-      {
-        role: "system",
-        content:
-          "Kamu adalah asisten yang membantu melengkapi laporan. Buat pertanyaan klarifikasi yang sensitif dan tidak memaksa.",
-      },
-      {
-        role: "user",
-        content: `Data yang sudah dikumpulkan:
-${JSON.stringify(extractedData, null, 2)}
-
-Field yang masih kurang: ${missingFields.join(", ")}
-
-Buatkan 1 pertanyaan klarifikasi yang sensitif untuk field yang paling penting. Gunakan bahasa Indonesia yang lembut. Maksimal 2 kalimat.`,
-      },
-    ];
-
-    try {
-      const response = await callGroqAPI({
-        messages: messages,
-        temperature: 0.6,
-        max_tokens: 100,
-      });
-
-      return response.trim();
-    } catch (error) {
-      console.error("[GroqAPI] Error generating clarification:", error);
-      return "Apakah ada informasi tambahan yang bisa Anda bagikan?";
-    }
-  }
 
   // =====================================================
   // Core API Call Function
@@ -359,10 +208,8 @@ Buatkan 1 pertanyaan klarifikasi yang sensitif untuk field yang paling penting. 
   // Export Public API
   // =====================================================
   window.GroqAPI = {
+    // Main function untuk Curhat Mode
     generateCurhatResponse,
-    extractReportInfo,
-    analyzeEmotion,
-    generateClarificationQuestion,
 
     // Utility untuk testing
     test: async function () {
@@ -379,7 +226,17 @@ Buatkan 1 pertanyaan klarifikasi yang sensitif untuk field yang paling penting. 
         return { success: false, error: error.message };
       }
     },
+
+    // Config info (read-only)
+    getConfig: () => ({
+      model: CONFIG.model,
+      temperature: CONFIG.temperature,
+      maxTokens: CONFIG.maxTokens,
+    }),
   };
 
-  console.log("[GroqAPI] Initialized with model:", CONFIG.model);
+  console.log("[GroqAPI] Initialized");
+  console.log("[GroqAPI] Model:", CONFIG.model);
+  console.log("[GroqAPI] Temperature:", CONFIG.temperature);
+  console.log("[GroqAPI] Max Tokens:", CONFIG.maxTokens);
 })();
