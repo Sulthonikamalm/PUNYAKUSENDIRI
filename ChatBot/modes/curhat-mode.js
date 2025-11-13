@@ -37,32 +37,38 @@
     };
 
     // =====================================================
-    // Supportive Response Templates
+    // Supportive Response Templates (Natural & Warm)
     // =====================================================
     const SUPPORTIVE_RESPONSES = {
         listening: [
-            'Saya mendengarkan Anda. Silakan lanjutkan bercerita...',
-            'Terima kasih sudah mau berbagi dengan saya. Saya di sini untuk mendengarkan.',
-            'Anda tidak sendirian. Silakan ceritakan apa yang Anda rasakan.',
-            'Saya memahami ini tidak mudah. Ambil waktu Anda.',
+            'Aku dengerin kamu. Boleh cerita lebih lanjut kalau kamu mau.',
+            'Aku di sini buat dengerin kamu. Ceritakan apa yang kamu rasakan.',
+            'Kamu nggak sendiri. Aku ada di sini buat kamu.',
+            'Aku paham ini nggak mudah. Ambil waktu yang kamu butuhin.',
         ],
         empathy: [
-            'Saya turut prihatin atas apa yang Anda alami.',
-            'Perasaan Anda sangat valid dan wajar dalam situasi ini.',
-            'Tidak ada yang salah dengan apa yang Anda rasakan sekarang.',
-            'Anda sangat berani sudah menceritakan hal ini.',
+            'Aku turut merasakan betapa beratnya ini buat kamu.',
+            'Perasaan kamu itu sangat valid dan wajar banget dalam situasi ini.',
+            'Nggak ada yang salah dengan apa yang kamu rasakan sekarang.',
+            'Kamu sangat berani udah mau cerita tentang ini.',
         ],
         validation: [
-            'Apa yang terjadi pada Anda bukan salah Anda.',
-            'Anda berhak merasa aman dan dihormati.',
-            'Reaksi Anda sangat manusiawi dan dapat dipahami.',
-            'Terima kasih sudah percaya untuk berbagi cerita ini.',
+            'Yang terjadi itu bukan salah kamu sama sekali.',
+            'Kamu berhak merasa aman dan dihormati.',
+            'Reaksi kamu itu sangat manusiawi dan bisa dimengerti.',
+            'Makasih udah percaya buat cerita ke aku.',
         ],
         encouragement: [
-            'Anda sangat kuat karena sudah sampai di titik ini.',
-            'Langkah untuk bercerita adalah langkah penting menuju pemulihan.',
-            'Anda tidak harus menghadapi ini sendirian.',
-            'Ada banyak orang yang peduli dan siap membantu Anda.',
+            'Kamu sangat kuat karena udah sampai di titik ini.',
+            'Langkah untuk bercerita itu langkah penting banget.',
+            'Kamu nggak harus hadapin ini sendirian.',
+            'Ada banyak orang yang peduli dan siap bantu kamu.',
+        ],
+        asking: [
+            'Mau cerita lebih tentang itu?',
+            'Boleh cerita lebih detail nggak?',
+            'Gimana perasaan kamu sekarang?',
+            'Ada yang lain yang pengen kamu ceritain?',
         ],
     };
 
@@ -223,13 +229,13 @@
         CurhatState.turnCount = 0;
         CurhatState.shouldOfferReport = false;
 
-        // Initial supportive message
+        // Initial supportive message - warm & natural
         setTimeout(() => {
             window.ChatBot.hideTypingIndicator();
-            window.ChatBot.addBotMessage('Ini adalah ruang aman untuk Anda. Anda bisa bercerita tentang apa pun yang Anda rasakan. Saya di sini untuk mendengarkan tanpa menghakimi.');
+            window.ChatBot.addBotMessage('Hai, aku Teman Sigap 💙 Ini adalah ruang aman buat kamu. Kamu bisa cerita apa aja yang kamu rasakan, dan aku akan dengerin tanpa menghakimi.');
 
             setTimeout(() => {
-                window.ChatBot.addBotMessage('Apa yang sedang Anda rasakan hari ini?');
+                window.ChatBot.addBotMessage('Apa yang lagi kamu rasakan hari ini?');
             }, 1500);
         }, 500);
     }
@@ -496,71 +502,80 @@
         const lowerText = text.toLowerCase();
 
         // If asking for advice
-        if (lowerText.match(/(bagaimana|gimana|harus|apa yang|saran)/)) {
-            return 'Setiap situasi unik, tapi yang penting Anda tidak sendiri. Anda bisa mempertimbangkan untuk berbicara dengan konselor profesional, melaporkan kejadian jika ada, atau mencari dukungan dari orang-orang terdekat yang Anda percaya.';
+        if (lowerText.match(/(bagaimana|gimana|harus|apa yang|saran|solusi)/)) {
+            return 'Aku paham kamu lagi butuh arahan. Setiap situasi itu unik, tapi yang penting kamu nggak sendirian. Kamu bisa pertimbangkan untuk bicara dengan konselor profesional, atau kalau siap, buat laporan resmi. Keputusan sepenuhnya ada di tangan kamu.';
         }
 
         // If expressing fear
-        if (lowerText.match(/(takut|khawatir|cemas)/)) {
-            return 'Rasa takut dan cemas yang Anda rasakan sangat wajar. Ingat bahwa Anda berada di ruang yang aman sekarang. Kami di sini untuk mendukung Anda dan memastikan Anda mendapat bantuan yang diperlukan.';
+        if (lowerText.match(/(takut|khawatir|cemas|panik)/)) {
+            return 'Rasa takut dan cemas yang kamu rasakan itu sangat wajar banget. Kamu sekarang ada di ruang yang aman. Aku di sini buat support kamu dan pastiin kamu dapet bantuan yang kamu butuhin. ' + getRandomResponse(SUPPORTIVE_RESPONSES.asking);
         }
 
         // If expressing guilt/shame
-        if (lowerText.match(/(salah saya|malu|bodoh|seharusnya)/)) {
-            return 'Tolong jangan menyalahkan diri sendiri. Apa yang terjadi BUKAN salah Anda. Tidak ada yang meminta atau pantas mendapat perlakuan buruk. Anda adalah korban, bukan penyebab.';
+        if (lowerText.match(/(salah (saya|aku|gue)|malu|bodoh|seharusnya|kenapa (aku|saya))/)) {
+            return 'Dengar ya, ini BUKAN salah kamu sama sekali. Yang terjadi itu tanggung jawab pelaku, bukan kamu. Kamu nggak minta buat diperlakuin kayak gitu. Kamu adalah korban, bukan penyebabnya. ' + getRandomResponse(SUPPORTIVE_RESPONSES.validation);
         }
 
         // If mentioning perpetrator
-        if (lowerText.match(/(pelaku|dia|mereka|orang itu)/)) {
-            return 'Yang dilakukan pelaku adalah tindakan yang salah dan tidak dapat dibenarkan. Anda berhak untuk merasa aman dan mendapat keadilan.';
+        if (lowerText.match(/(pelaku|dia|mereka|orang itu|senior|dosen|teman)/)) {
+            return 'Yang dilakukan sama mereka itu salah dan nggak bisa dibenarkan. Kamu berhak untuk merasa aman dan dapet keadilan. Mau cerita lebih detail tentang yang terjadi?';
         }
 
-        // Default contextual response
-        return getRandomResponse([
-            ...SUPPORTIVE_RESPONSES.listening,
-            ...SUPPORTIVE_RESPONSES.empathy,
-        ]);
+        // If expressing hopelessness
+        if (lowerText.match(/(nggak ada harapan|putus asa|udah nggak tau|bingung)/)) {
+            return 'Aku dengar kamu. Rasanya pasti berat banget sampai merasa kayak gitu. Tapi percaya deh, ada jalan keluar dari ini, meskipun sekarang belum keliatan. Kamu udah berani cerita, itu langkah pertama yang penting banget.';
+        }
+
+        // If short response (iya/tidak/hmm)
+        if (lowerText.match(/^(iya|ya|tidak|nggak|hmm|oh|ok|gitu)$/)) {
+            return 'Aku dengerin kamu. ' + getRandomResponse(SUPPORTIVE_RESPONSES.asking);
+        }
+
+        // Default contextual response - combine listening + empathy + asking
+        const listening = getRandomResponse(SUPPORTIVE_RESPONSES.listening);
+        const asking = getRandomResponse(SUPPORTIVE_RESPONSES.asking);
+        return `${listening} ${asking}`;
     }
 
     function offerReportCreation() {
-        window.ChatBot.addBotMessage('Terima kasih sudah mau berbagi dengan saya. Berdasarkan cerita Anda, sepertinya ada kejadian yang perlu ditindaklanjuti.');
+        window.ChatBot.addBotMessage('Makasih udah mau berbagi cerita sama aku. Dari yang kamu ceritain, kayaknya ada kejadian yang perlu ditindaklanjuti nih.');
 
         setTimeout(() => {
             const options = {
                 quickActions: [
                     {
-                        label: 'Ya, Buat Laporan',
+                        label: '✅ Ya, Buat Laporan',
                         callback: () => startReportProcess(),
                     },
                     {
-                        label: 'Tidak, Terima Kasih',
+                        label: '❌ Tidak, Terima Kasih',
                         callback: () => declineReport(),
                     },
                     {
-                        label: 'Nanti Saja',
+                        label: '⏰ Nanti Saja',
                         callback: () => postponeReport(),
                     },
                 ],
             };
 
-            window.ChatBot.addBotMessage('Apakah Anda ingin membuat laporan resmi? Laporan akan membantu tim kami mengambil tindakan yang tepat.', options);
+            window.ChatBot.addBotMessage('Mau nggak kita buat laporan resmi? Laporan ini bisa bantu tim kami ambil tindakan yang tepat buat kasusmu. Tapi keputusan sepenuhnya ada di tangan kamu ya.', options);
         }, 1500);
     }
 
     function startReportProcess() {
-        window.ChatBot.addUserMessage('Ya, Buat Laporan');
+        window.ChatBot.addUserMessage('✅ Ya, Buat Laporan');
         window.ChatBot.showTypingIndicator();
 
         setTimeout(() => {
             window.ChatBot.hideTypingIndicator();
-            window.ChatBot.addBotMessage('Baik, saya akan memandu Anda membuat laporan dengan pertanyaan terstruktur.');
+            window.ChatBot.addBotMessage('Oke, aku akan bantu kamu bikin laporan dengan pertanyaan terstruktur ya. Nanti tinggal jawab satu-satu, santai aja.');
 
             setTimeout(() => {
                 // Switch to Guided Mode
                 if (window.GuidedMode) {
                     window.GuidedMode.start();
                 } else {
-                    window.ChatBot.addBotMessage('Maaf, mode pelaporan belum tersedia. Silakan refresh halaman atau hubungi admin.');
+                    window.ChatBot.addBotMessage('Maaf, mode pelaporan lagi ada gangguan. Coba refresh halaman atau hubungi admin ya.');
                 }
             }, 1000);
         }, 800);
@@ -568,29 +583,29 @@
 
 
     function declineReport() {
-        window.ChatBot.addUserMessage('Tidak, Terima Kasih');
+        window.ChatBot.addUserMessage('❌ Tidak, Terima Kasih');
         window.ChatBot.showTypingIndicator();
 
         setTimeout(() => {
             window.ChatBot.hideTypingIndicator();
-            window.ChatBot.addBotMessage('Tidak masalah. Keputusan ada di tangan Anda. Jika suatu saat Anda berubah pikiran, kami siap membantu.');
+            window.ChatBot.addBotMessage('Nggak masalah kok. Keputusan sepenuhnya ada di tangan kamu. Kalau suatu saat kamu berubah pikiran, aku tetap di sini buat bantu kamu.');
 
             setTimeout(() => {
-                window.ChatBot.addBotMessage('Apakah ada hal lain yang ingin Anda ceritakan atau tanyakan?');
+                window.ChatBot.addBotMessage('Ada hal lain yang pengen kamu ceritain atau tanyain nggak?');
             }, 1500);
         }, 800);
     }
 
     function postponeReport() {
-        window.ChatBot.addUserMessage('Nanti Saja');
+        window.ChatBot.addUserMessage('⏰ Nanti Saja');
         window.ChatBot.showTypingIndicator();
 
         setTimeout(() => {
             window.ChatBot.hideTypingIndicator();
-            window.ChatBot.addBotMessage('Baik, tidak masalah. Ambil waktu yang Anda butuhkan. Saya akan tetap di sini jika Anda ingin melanjutkan percakapan.');
+            window.ChatBot.addBotMessage('Oke, nggak masalah. Ambil waktu yang kamu butuhin. Aku tetap di sini kalau kamu mau lanjut ngobrol.');
 
             setTimeout(() => {
-                window.ChatBot.addBotMessage('Ingat, Anda bisa membuat laporan kapan saja ketika Anda siap.');
+                window.ChatBot.addBotMessage('Ingat ya, kamu bisa buat laporan kapan aja pas kamu udah siap.');
             }, 1500);
         }, 800);
     }
