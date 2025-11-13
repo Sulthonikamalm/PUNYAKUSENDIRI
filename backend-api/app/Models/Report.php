@@ -21,6 +21,8 @@ class Report extends Model
         'nama',
         'jenis_kelamin',
         'email',
+        'usia_korban',        // NEW: Victim age
+        'whatsapp_korban',    // NEW: Victim WhatsApp
         'tanggal_kejadian',
         'hari_kejadian',
         'lokasi_kejadian',
@@ -99,5 +101,13 @@ class Report extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Report has many files (multi-file upload)
+     */
+    public function files()
+    {
+        return $this->hasMany(ReportFile::class);
     }
 }
