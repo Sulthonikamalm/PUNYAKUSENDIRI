@@ -70,6 +70,10 @@ class ReportController extends Controller
             'kategori' => 'required|in:Pelecehan Seksual,Kekerasan Fisik,Kekerasan Psikis,Perundungan,Lainnya',
             'tingkat_khawatir' => 'nullable|in:sedikit,khawatir,sangat',
             'resume_laporan' => 'nullable|string',
+            'jenis_pelanggaran' => 'sometimes|string|max:255',
+            'deskripsi' => 'sometimes|string',
+            'lokasi' => 'sometimes|string|max:255',
+            'bukti_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -81,8 +85,25 @@ class ReportController extends Controller
         }
 
         try {
+            $data = $request->except('bukti_file');
+
+            // Add user_id from authenticated user
+            if (auth()->check()) {
+                $data['user_id'] = auth()->id();
+            }
+
+            // Handle file upload - CRITICAL SECURITY
+            if ($request->hasFile('bukti_file')) {
+                $file = $request->file('bukti_file');
+
+                // Store file in public disk (storage/app/public/bukti)
+                $path = $file->store('bukti', 'public');
+
+                $data['bukti_file_path'] = $path;
+            }
+
             // Create report
-            $report = Report::create($request->all());
+            $report = Report::create($data);
 
             return response()->json([
                 'success' => true,
