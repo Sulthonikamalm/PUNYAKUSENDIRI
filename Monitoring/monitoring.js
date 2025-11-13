@@ -48,13 +48,18 @@
   // INITIALIZATION
   // ============================================
   function init() {
-    // Require authentication
-    if (!authManager.requireAuth()) {
-      return; // Will redirect to login
-    }
-
-    console.log('✅ User authenticated:', authManager.getCurrentUser().name);
     console.log('🚀 Monitoring System v3.0 Initializing...');
+
+    // Check if user is authenticated
+    if (!authManager.isAuthenticated()) {
+      // Show warning message (don't block access yet)
+      console.warn('⚠️ User not authenticated - may not be able to fetch reports');
+
+      // Show UI message
+      showAuthWarning();
+    } else {
+      console.log('✅ User authenticated:', authManager.getCurrentUser().name);
+    }
 
     // Generate particles
     generateParticles();
@@ -66,6 +71,69 @@
     setupEventListeners();
 
     console.log('✅ Monitoring System Ready');
+  }
+
+  // ============================================
+  // SHOW AUTHENTICATION WARNING
+  // ============================================
+  function showAuthWarning() {
+    // Create warning banner
+    const warningBanner = document.createElement('div');
+    warningBanner.className = 'auth-warning-banner';
+    warningBanner.style.cssText = `
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        max-width: 90%;
+        animation: slideDown 0.5s ease;
+    `;
+
+    warningBanner.innerHTML = `
+        <i class="fas fa-info-circle" style="font-size: 24px;"></i>
+        <div>
+            <strong>Info:</strong> Untuk melacak laporan, silakan login terlebih dahulu.
+        </div>
+        <button onclick="window.location.href='../auth/login.html'"
+                style="background: white; color: #667eea; border: none;
+                       padding: 8px 20px; border-radius: 8px; cursor: pointer;
+                       font-weight: 600; transition: all 0.3s;">
+            Login
+        </button>
+        <button onclick="this.parentElement.remove()"
+                style="background: transparent; color: white; border: none;
+                       padding: 8px; cursor: pointer; font-size: 20px;">
+            ×
+        </button>
+    `;
+
+    // Add animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(warningBanner);
+
+    // Auto-hide after 8 seconds
+    setTimeout(() => {
+      warningBanner.style.opacity = '0';
+      warningBanner.style.transform = 'translateX(-50%) translateY(-20px)';
+      setTimeout(() => warningBanner.remove(), 500);
+    }, 8000);
   }
 
   // ============================================
@@ -437,68 +505,206 @@
    */
   async function getReportById(reportId) {
     try {
-      // TODO: Ganti URL ini dengan endpoint Laravel API Anda
-      const API_ENDPOINT = `/api/reports/${reportId}`;
+      console.log('🔍 Fetching report:', reportId);
 
-      const response = await fetch(API_ENDPOINT, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          // Add authentication header jika diperlukan:
-          // 'Authorization': 'Bearer ' + yourAuthToken
-        }
-      });
+      // Check authentication first
+      if (!authManager.isAuthenticated()) {
+        console.warn('⚠️ User not authenticated');
+        showError('Silakan login terlebih dahulu untuk melacak laporan.');
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          console.log('Report not found:', reportId);
-          return null;
-        }
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        // Show login button
+        setTimeout(() => {
+          if (confirm('Anda harus login untuk melihat status laporan. Login sekarang?')) {
+            window.location.href = '../auth/login.html';
+          }
+        }, 1000);
+
+        return null;
       }
 
-      const data = await response.json();
+      // Use apiClient for authenticated request
+      const result = await apiClient.get(
+        `${APP_CONFIG.API.ENDPOINTS.REPORTS}/${reportId}`
+      );
 
-      // Expected Laravel API response format:
-      // {
-      //   "success": true,
-      //   "data": {
-      //     "id": "GNJ34",
-      //     "status": "completed", // or "in_progress"
-      //     "reporterName": "Anonymous",
-      //     "createdAt": "2025-01-15T14:30:00",
-      //     "steps": [
-      //       {
-      //         "id": 1,
-      //         "title": "Form telah ditemukan",
-      //         "description": "...",
-      //         "status": "success", // "success" | "loading" | "failed"
-      //         "delay": 4000,
-      //         "icon": "✓"
-      //       },
-      //       {
-      //         "id": 2,
-      //         "title": "Pengiriman identitas korban",
-      //         "description": "...",
-      //         "status": "loading", // This is the CURRENT step
-      //         "delay": 999999,
-      //         "icon": "⏸"
-      //       }
-      //       // NOTE: Last step in array = current progress
-      //     ]
-      //   }
-      // }
+      if (result.success) {
+        console.log('✅ Report found:', result.data);
 
-      return data.success ? data.data : null;
+        // Transform backend data to frontend format
+        return transformReportData(result.data);
+      } else {
+        // Handle different error types
+        if (result.status === 404) {
+          console.log('❌ Report not found:', reportId);
+          return null;
+        } else if (result.status === 401) {
+          console.error('❌ Unauthorized - token invalid');
+          showError('Sesi Anda telah berakhir. Silakan login kembali.');
+
+          setTimeout(() => {
+            authManager.logout();
+          }, 2000);
+
+          return null;
+        } else if (result.status === 403) {
+          console.error('❌ Forbidden - not your report');
+          showError('Anda tidak memiliki akses ke laporan ini.');
+          return null;
+        } else {
+          console.error('❌ API error:', result.error);
+          showError(result.message || 'Gagal mengambil data laporan.');
+          return null;
+        }
+      }
 
     } catch (error) {
-      console.error('❌ Error fetching report:', error);
+      console.error('❌ Exception fetching report:', error);
 
-      // Show user-friendly error
-      showError('Terjadi kesalahan saat mengambil data. Pastikan server Laravel berjalan.');
+      if (error.message && error.message.includes('Network')) {
+        showError('Koneksi internet bermasalah. Periksa koneksi Anda.');
+      } else {
+        showError('Terjadi kesalahan saat mengambil data. Pastikan server backend berjalan.');
+      }
+
       return null;
     }
+  }
+
+  // ============================================
+  // TRANSFORM REPORT DATA
+  // Convert backend format to frontend format
+  // ============================================
+  function transformReportData(backendData) {
+    /**
+     * Backend returns:
+     * {
+     *   "id": 123,
+     *   "id_pelapor": "PPKS123456789",
+     *   "nama": "John Doe",
+     *   "email": "john@example.com",
+     *   "status": "pending", // or "process", "complete"
+     *   "status_pelanggaran": "menunggu", // or "diproses", "selesai"
+     *   "kategori": "Pelecehan Seksual",
+     *   "tanggal_kejadian": "2025-11-13",
+     *   "created_at": "2025-11-13T10:30:00.000000Z",
+     *   ...
+     * }
+     *
+     * Frontend expects:
+     * {
+     *   "id": "PPKS123456789",
+     *   "status": "completed", // or "in_progress"
+     *   "reporterName": "Anonymous",
+     *   "createdAt": "2025-11-13T10:30:00",
+     *   "steps": [...]
+     * }
+     */
+
+    // Map status from backend to frontend
+    let frontendStatus = 'in_progress';
+    if (backendData.status === 'complete' || backendData.status_pelanggaran === 'selesai') {
+      frontendStatus = 'completed';
+    }
+
+    // Build steps array based on status
+    const steps = buildStepsFromStatus(backendData);
+
+    return {
+      id: backendData.id_pelapor || backendData.id,
+      status: frontendStatus,
+      reporterName: backendData.nama || 'Anonymous',
+      createdAt: backendData.created_at,
+      category: backendData.kategori,
+      steps: steps
+    };
+  }
+
+  // ============================================
+  // BUILD STEPS FROM STATUS
+  // Generate timeline steps based on report status
+  // ============================================
+  function buildStepsFromStatus(report) {
+    const steps = [];
+
+    // Step 1: Report received (always completed if report exists)
+    steps.push({
+      id: 1,
+      title: 'Laporan Diterima',
+      description: `Laporan ${report.kategori || 'kasus'} telah berhasil diterima oleh sistem pada ${formatDate(report.created_at)}.`,
+      status: 'success',
+      icon: '✓'
+    });
+
+    // Step 2: Verification (based on status)
+    if (report.status === 'pending') {
+      // Still waiting for verification
+      steps.push({
+        id: 2,
+        title: 'Menunggu Verifikasi',
+        description: 'Laporan Anda sedang menunggu verifikasi dari tim kami. Proses ini biasanya memakan waktu 1-2 hari kerja.',
+        status: 'loading',
+        icon: '⏸'
+      });
+    } else {
+      // Verification complete
+      steps.push({
+        id: 2,
+        title: 'Verifikasi Selesai',
+        description: 'Laporan Anda telah diverifikasi dan sedang dalam proses penanganan.',
+        status: 'success',
+        icon: '✓'
+      });
+    }
+
+    // Step 3: Investigation (if status is 'process')
+    if (report.status === 'process' || report.status_pelanggaran === 'diproses') {
+      steps.push({
+        id: 3,
+        title: 'Dalam Proses Investigasi',
+        description: 'Tim kami sedang melakukan investigasi dan penanganan terhadap laporan Anda. Kami akan menghubungi Anda jika memerlukan informasi tambahan.',
+        status: 'loading',
+        icon: '⏸'
+      });
+    } else if (report.status === 'complete' || report.status_pelanggaran === 'selesai') {
+      steps.push({
+        id: 3,
+        title: 'Investigasi Selesai',
+        description: 'Investigasi telah selesai dilakukan dengan menyeluruh.',
+        status: 'success',
+        icon: '✓'
+      });
+    }
+
+    // Step 4: Completed (if status is 'complete')
+    if (report.status === 'complete' || report.status_pelanggaran === 'selesai') {
+      steps.push({
+        id: 4,
+        title: 'Kasus Selesai',
+        description: report.catatan_admin || 'Penanganan kasus telah selesai. Terima kasih atas kepercayaan Anda kepada SIGAP PPKS.',
+        status: 'success',
+        icon: '✓'
+      });
+    }
+
+    return steps;
+  }
+
+  // ============================================
+  // FORMAT DATE HELPER
+  // ============================================
+  function formatDate(dateString) {
+    if (!dateString) return 'tanggal tidak diketahui';
+
+    const date = new Date(dateString);
+    const options = {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+
+    return date.toLocaleDateString('id-ID', options);
   }
 
   // ============================================
