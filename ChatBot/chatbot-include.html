@@ -1,0 +1,145 @@
+<!-- ===============================================
+     CHATBOT INTEGRATION - Copy this block to any page
+     =============================================== -->
+
+<!-- IMPORTANT: This chatbot is integrated with FABsigap -->
+<!-- It will be triggered from the "Chat TemanKu" button in FABsigap -->
+<!-- NOT a standalone floating button -->
+
+<!-- 1. Add this to <head> section: -->
+<!-- <link rel="stylesheet" href="../ChatBot/chatbot.css" /> -->
+
+<!-- 2. Add this before closing </body> tag: -->
+
+<!-- ChatBot Modal (Triggered by FABsigap "Chat TemanKu" button) -->
+<div class="chatbot-modal-overlay" id="chatbotModalOverlay">
+    <div class="chatbot-modal">
+        <!-- Mode Selection Screen -->
+        <div class="chatbot-screen mode-selection-screen" id="modeSelectionScreen">
+            <div class="chatbot-modal-header">
+                <h2>Pilih Mode Chat</h2>
+                <button class="btn-close-chatbot" id="btnCloseChatbot">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="mode-subtitle">Kami siap membantu Anda dengan berbagai cara</p>
+
+            <div class="mode-cards-container">
+                <!-- Chat Guided -->
+                <div class="mode-card" data-mode="guided">
+                    <div class="mode-icon guided">
+                        <i class="fas fa-list-check"></i>
+                    </div>
+                    <h3>Chat Guided</h3>
+                    <p>Kami akan memandu Anda langkah demi langkah untuk membuat laporan dengan pertanyaan terstruktur</p>
+                    <button class="btn-select-mode">
+                        <span>Pilih Mode</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- Chat Curhat -->
+                <div class="mode-card" data-mode="curhat">
+                    <div class="mode-icon curhat">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Chat Curhat</h3>
+                    <p>Butuh tempat untuk bercerita atau dukungan emosional? Kami siap mendengarkan dan memberikan dukungan</p>
+                    <button class="btn-select-mode">
+                        <span>Pilih Mode</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Interface Screen -->
+        <div class="chatbot-screen chat-interface-screen" id="chatInterfaceScreen" style="display: none;">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <button class="btn-back-to-modes" id="btnBackToModes">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="chat-header-info">
+                    <h3 id="chatModeTitle">Chat</h3>
+                    <p class="chat-mode-desc" id="chatModeDesc"></p>
+                </div>
+                <div class="chat-header-actions">
+                    <button class="btn-minimize-chat" id="btnMinimizeChat" title="Minimize">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="btn-close-chatbot" id="btnCloseChatbot2">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Messages Container -->
+            <div class="chat-messages-container" id="chatMessagesContainer">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Welcome message will be inserted here -->
+                </div>
+
+                <!-- Typing Indicator -->
+                <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                    <div class="typing-bubble">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="chat-input-area">
+                <!-- Voice Recording Mode -->
+                <div class="voice-recording-mode" id="voiceRecordingMode" style="display: none;">
+                    <div class="recording-animation">
+                        <div class="recording-circle">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <div class="sound-wave">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                    <p class="recording-text">Sedang merekam...</p>
+                    <button class="btn-stop-recording" id="btnStopRecording">
+                        <i class="fas fa-stop-circle"></i>
+                        <span>Stop</span>
+                    </button>
+                </div>
+
+                <!-- Normal Input Mode -->
+                <div class="chat-input-wrapper" id="chatInputWrapper">
+                    <button class="btn-voice-input" id="btnVoiceInput" title="Rekam suara">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <input
+                        type="text"
+                        class="chat-input"
+                        id="chatInput"
+                        placeholder="Ketik pesan..."
+                        autocomplete="off"
+                    />
+                    <button class="btn-send-chat" id="btnSendChat" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Add these scripts before closing </body> tag: -->
+<!--
+<script src="../ChatBot/api/groq-api.js"></script>
+<script src="../ChatBot/modes/guided-mode.js"></script>
+<script src="../ChatBot/modes/curhat-mode.js"></script>
+<script src="../ChatBot/chatbot.js"></script>
+-->

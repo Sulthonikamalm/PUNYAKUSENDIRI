@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sigap - Log in Admin</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="row vh-100">
+            <div class="col-lg-5 col-md-6 d-flex justify-content-center align-items-center form-column">
+                <div class="form-container">
+                    <h1 class="brand-title">Sigap</h1>
+                    <p class="subtitle mb-4">Log in Admin</p>
+
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" required>
+                                <span class="input-group-text" id="togglePasswordIcon">
+                                    <i class="bi bi-eye-slash" id="eyeIcon"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div id="errorMessage" class="alert alert-danger d-none" role="alert">
+                            Email atau Password salah!
+                        </div>
+                        
+                        <div class="d-grid mt-3">
+                            <button type="submit" class="btn btn-primary btn-login">Log in</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-7 col-md-6 d-none d-md-flex justify-content-center align-items-center image-column">
+                <img src="illustration.png" class="img-fluid w-75" alt="Ilustrasi Admin bekerja">
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordField = document.getElementById('password');
+            const toggleIconContainer = document.getElementById('togglePasswordIcon');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            const loginForm = document.getElementById('loginForm');
+            const emailField = document.getElementById('email');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // --- FUNGSI IKON MATA (DARI SEBELUMNYA) ---
+            passwordField.addEventListener('input', function() {
+                toggleIconContainer.style.display = (passwordField.value.length > 0) ? 'flex' : 'none';
+            });
+
+            toggleIconContainer.addEventListener('click', function() {
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+                
+                if (type === 'text') {
+                    eyeIcon.classList.remove('bi-eye-slash');
+                    eyeIcon.classList.add('bi-eye');
+                } else {
+                    eyeIcon.classList.remove('bi-eye');
+                    eyeIcon.classList.add('bi-eye-slash');
+                }
+            });
+
+            // --- FUNGSI VALIDASI & REDIRECT BARU ---
+            loginForm.addEventListener('submit', function(event) {
+                // 1. Mencegah form terkirim (refresh halaman)
+                event.preventDefault();
+
+                // 2. Ambil nilai input
+                const email = emailField.value;
+                const password = passwordField.value;
+
+                // 3. Tentukan email & password "yang benar" (HANYA UNTUK SIMULASI)
+                const correctEmail = "admin@sigap.com";
+                const correctPassword = "password123";
+
+                // 4. Lakukan pengecekan
+                if (email === correctEmail && password === correctPassword) {
+                    // Jika benar, arahkan (redirect) ke halaman dashboard
+                    errorMessage.classList.add('d-none'); // Sembunyikan error jika ada
+                    alert('Login Berhasil! Mengarahkan ke Dashboard...');
+                    // Ganti 'dashboard.html' dengan nama file halaman baru Anda
+                    window.location.href = "dashboard.html"; 
+                } else {
+                    // Jika salah, tampilkan pesan error
+                    errorMessage.classList.remove('d-none');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

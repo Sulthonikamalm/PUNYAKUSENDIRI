@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot - Satgas PPKS</title>
+    <link rel="stylesheet" href="chatbot.css">
+    <link rel="stylesheet" href="../Assets/css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="chatbot-container">
+        <!-- Mode Selection Screen -->
+        <div class="mode-selection-screen" id="modeSelectionScreen">
+            <div class="mode-header">
+                <button class="btn-back" id="btnBackHome">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Pilih Mode Chat</h1>
+                <p class="mode-subtitle">Kami siap membantu Anda dengan berbagai cara</p>
+            </div>
+
+            <div class="mode-cards">
+                <!-- Chat Guided -->
+                <div class="mode-card" data-mode="guided">
+                    <div class="mode-icon">
+                        <i class="fas fa-list-check"></i>
+                    </div>
+                    <h3>Chat Guided</h3>
+                    <p>Kami akan memandu Anda langkah demi langkah untuk membuat laporan dengan pertanyaan terstruktur</p>
+                    <ul class="mode-features">
+                        <li><i class="fas fa-check"></i> Pertanyaan terstruktur</li>
+                        <li><i class="fas fa-check"></i> Mudah diikuti</li>
+                        <li><i class="fas fa-check"></i> Sistematis</li>
+                    </ul>
+                    <button class="btn-select-mode">Pilih Mode Ini</button>
+                </div>
+
+                <!-- Chat Curhat -->
+                <div class="mode-card" data-mode="curhat">
+                    <div class="mode-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Chat Curhat</h3>
+                    <p>Butuh tempat untuk bercerita atau dukungan emosional? Kami siap mendengarkan dan memberikan dukungan</p>
+                    <ul class="mode-features">
+                        <li><i class="fas fa-check"></i> Ruang aman</li>
+                        <li><i class="fas fa-check"></i> Dukungan emosional</li>
+                        <li><i class="fas fa-check"></i> Konseling</li>
+                    </ul>
+                    <button class="btn-select-mode">Pilih Mode Ini</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div class="chat-interface" id="chatInterface" style="display: none;">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <button class="btn-back-mode" id="btnBackMode">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="chat-header-info">
+                    <h2 id="chatModeTitle">Chat</h2>
+                    <p class="chat-status">
+                        <span class="status-indicator"></span>
+                        <span id="chatStatusText">Online</span>
+                    </p>
+                </div>
+                <button class="btn-chat-menu" id="btnChatMenu">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be dynamically inserted here -->
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input-container">
+                <!-- Voice Recording Indicator -->
+                <div class="chat-voice-recording" id="chatVoiceRecording" style="display: none;">
+                    <div class="recording-wave">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                    <span class="recording-text">Sedang merekam...</span>
+                    <button class="btn-stop-chat-recording" id="btnStopChatRecording">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
+
+                <!-- Input Box -->
+                <div class="chat-input-box" id="chatInputBox">
+                    <button class="btn-chat-voice" id="btnChatVoice" title="Rekam suara">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <input
+                        type="text"
+                        id="chatInput"
+                        placeholder="Ketik pesan Anda..."
+                        autocomplete="off"
+                    >
+                    <button class="btn-send-message" id="btnSendMessage" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="api/groq-api.js"></script>
+    <script src="modes/guided-mode.js"></script>
+    <script src="modes/curhat-mode.js"></script>
+    <script src="chatbot.js"></script>
+</body>
+</html>

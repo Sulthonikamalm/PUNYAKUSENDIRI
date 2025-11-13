@@ -1,0 +1,97 @@
+/* Menggunakan font yang sudah kita impor di HTML */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa; /* Warna latar belakang fallback */
+}
+
+/* Judul "Sigap" */
+.brand-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem; /* 56px */
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 0;
+}
+
+/* Sub-judul "Log in Admin" */
+.subtitle {
+    font-size: 1.1rem; /* 18px */
+    color: #6c757d; /* Abu-abu */
+}
+
+/* Kolom Kiri (Form) */
+.form-column {
+    background-color: #ffffff; /* Latar putih di kolom form */
+    padding: 3rem;
+}
+
+/* Wrapper untuk form agar tidak terlalu lebar */
+.form-container {
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Input Form */
+.form-control,
+.input-group-text {
+    background-color: #f8f9fa; /* Latar input abu-abu muda */
+    border: none; /* Hilangkan border */
+    border-radius: 0.5rem; /* 8px */
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem;
+}
+
+.form-control:focus {
+    background-color: #f8f9fa;
+    box-shadow: 0 0 0 0.25rem rgba(108, 99, 255, 0.25); /* Shadow ungu saat diklik */
+    border-color: #f8f9fa;
+}
+
+/* Label (Email, Password) */
+.form-label {
+    font-weight: 500;
+    color: #343a40;
+}
+
+/* Tombol Login */
+.btn-login {
+    background-color: #6c63ff; /* Warna ungu dari gambar (perkiraan) */
+    border-color: #6c63ff;
+    border-radius: 0.5rem; /* 8px */
+    padding: 0.9rem;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.btn-login:hover {
+    background-color: #5a52d9; /* Warna ungu lebih gelap saat hover */
+    border-color: #5a52d9;
+}
+
+/* Ikon mata di dalam input password */
+.input-group-text {
+    border-radius: 0 0.5rem 0.5rem 0;
+    cursor: pointer;
+}
+
+/* ============= PERUBAHAN DI SINI ============= */
+/* Sembunyikan ikon mata secara default */
+#togglePasswordIcon {
+    display: none; 
+    /* Bootstrap menggunakan 'flex' untuk input-group-text.
+      JavaScript akan mengubah ini ke 'flex' saat pengguna mengetik.
+    */
+}
+/* =========================================== */
+
+
+/* Kolom Kanan (Gambar) */
+.image-column {
+    background-color: #f8f9fa; /* Latar abu-abu muda untuk kolom gambar */
+}
+
+@media (max-width: 767.98px) {
+    .image-column {
+        display: none;
+    }
+}
