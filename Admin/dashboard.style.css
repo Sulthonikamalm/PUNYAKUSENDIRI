@@ -1161,3 +1161,235 @@ body {
     border-color: #545b62;
     color: #ffffff;
 }
+/* =====================================================
+   CONTROLS SECTION
+   ===================================================== */
+.controls-section {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* =====================================================
+   STATISTICS CARDS
+   ===================================================== */
+.stats-section {
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+
+.stat-icon.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-icon.bg-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-icon.bg-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stat-icon.bg-success {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.stat-info h3 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.stat-info p {
+    margin: 0;
+    font-size: 14px;
+    color: #718096;
+}
+
+/* =====================================================
+   LOADING STATE
+   ===================================================== */
+.loading-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #718096;
+}
+
+.loading-state .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* =====================================================
+   EMPTY STATE
+   ===================================================== */
+.empty-state {
+    padding: 80px 20px;
+}
+
+.empty-state i {
+    font-size: 80px;
+    color: #cbd5e0;
+}
+
+.empty-state h4 {
+    margin-top: 20px;
+    color: #4a5568;
+}
+
+.empty-state p {
+    color: #718096;
+}
+
+/* =====================================================
+   KHAWATIR BAR (Concern Level)
+   ===================================================== */
+.khawatir-bar {
+    height: 8px;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 150px;
+    position: relative;
+    overflow: hidden;
+}
+
+.khawatir-bar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.khawatir-bar.sedikit {
+    background: #e2e8f0;
+}
+
+.khawatir-bar.sedikit::before {
+    width: 33%;
+    background: linear-gradient(90deg, #48bb78, #38a169);
+}
+
+.khawatir-bar.khawatir {
+    background: #e2e8f0;
+}
+
+.khawatir-bar.khawatir::before {
+    width: 66%;
+    background: linear-gradient(90deg, #ed8936, #dd6b20);
+}
+
+.khawatir-bar.sangat {
+    background: #e2e8f0;
+}
+
+.khawatir-bar.sangat::before {
+    width: 100%;
+    background: linear-gradient(90deg, #f56565, #c53030);
+}
+
+/* =====================================================
+   PAGINATION STYLES
+   ===================================================== */
+.pagination-section {
+    margin-top: 32px;
+}
+
+.pagination {
+    gap: 4px;
+}
+
+.page-link {
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    color: #2d3748;
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    background: #f7fafc;
+    border-color: #e2e8f0;
+    color: #cbd5e0;
+    cursor: not-allowed;
+}
+
+/* =====================================================
+   DROPDOWN MENU
+   ===================================================== */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    padding: 8px 0;
+}
+
+.dropdown-item {
+    padding: 10px 20px;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: #f7fafc;
+}
+
+.dropdown-item i {
+    width: 20px;
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+@media (max-width: 991px) {
+    .stat-card {
+        margin-bottom: 12px;
+    }
+    
+    .controls-section .col-md-5,
+    .controls-section .col-md-3,
+    .controls-section .col-md-2 {
+        margin-bottom: 12px;
+    }
+}
