@@ -50,16 +50,8 @@
   function init() {
     console.log('🚀 Monitoring System v3.0 Initializing...');
 
-    // Check if user is authenticated
-    if (!authManager.isAuthenticated()) {
-      // Show warning message (don't block access yet)
-      console.warn('⚠️ User not authenticated - may not be able to fetch reports');
-
-      // Show UI message
-      showAuthWarning();
-    } else {
-      console.log('✅ User authenticated:', authManager.getCurrentUser().name);
-    }
+    // No authentication required - anonymous tracking is allowed
+    console.log('✅ Public tracking mode - no authentication required');
 
     // Generate particles
     generateParticles();
@@ -71,69 +63,6 @@
     setupEventListeners();
 
     console.log('✅ Monitoring System Ready');
-  }
-
-  // ============================================
-  // SHOW AUTHENTICATION WARNING
-  // ============================================
-  function showAuthWarning() {
-    // Create warning banner
-    const warningBanner = document.createElement('div');
-    warningBanner.className = 'auth-warning-banner';
-    warningBanner.style.cssText = `
-        position: fixed;
-        top: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 15px 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        max-width: 90%;
-        animation: slideDown 0.5s ease;
-    `;
-
-    warningBanner.innerHTML = `
-        <i class="fas fa-info-circle" style="font-size: 24px;"></i>
-        <div>
-            <strong>Info:</strong> Untuk melacak laporan, silakan login terlebih dahulu.
-        </div>
-        <button onclick="window.location.href='../auth/login.html'"
-                style="background: white; color: #667eea; border: none;
-                       padding: 8px 20px; border-radius: 8px; cursor: pointer;
-                       font-weight: 600; transition: all 0.3s;">
-            Login
-        </button>
-        <button onclick="this.parentElement.remove()"
-                style="background: transparent; color: white; border: none;
-                       padding: 8px; cursor: pointer; font-size: 20px;">
-            ×
-        </button>
-    `;
-
-    // Add animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideDown {
-            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-    `;
-    document.head.appendChild(style);
-
-    document.body.appendChild(warningBanner);
-
-    // Auto-hide after 8 seconds
-    setTimeout(() => {
-      warningBanner.style.opacity = '0';
-      warningBanner.style.transform = 'translateX(-50%) translateY(-20px)';
-      setTimeout(() => warningBanner.remove(), 500);
-    }, 8000);
   }
 
   // ============================================
@@ -499,60 +428,41 @@
   }
 
   /**
-   * Fetch report from Laravel backend API
+   * Fetch report from Laravel backend API (Public endpoint - no authentication required)
    * @param {string} reportId - Kode laporan
    * @returns {Promise<object|null>} Report data dari API
    */
   async function getReportById(reportId) {
     try {
-      console.log('🔍 Fetching report:', reportId);
+      console.log('🔍 Fetching report (public access):', reportId);
 
-      // Check authentication first
-      if (!authManager.isAuthenticated()) {
-        console.warn('⚠️ User not authenticated');
-        showError('Silakan login terlebih dahulu untuk melacak laporan.');
+      // Use public API endpoint - no authentication required
+      // This allows victims to track their report using only the report ID
+      const url = `${APP_CONFIG.API.BASE_URL}${APP_CONFIG.API.ENDPOINTS.REPORTS}/${reportId}`;
 
-        // Show login button
-        setTimeout(() => {
-          if (confirm('Anda harus login untuk melihat status laporan. Login sekarang?')) {
-            window.location.href = '../auth/login.html';
-          }
-        }, 1000);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
 
-        return null;
-      }
-
-      // Use apiClient for authenticated request
-      const result = await apiClient.get(
-        `${APP_CONFIG.API.ENDPOINTS.REPORTS}/${reportId}`
-      );
-
-      if (result.success) {
-        console.log('✅ Report found:', result.data);
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Report found:', result.data || result);
 
         // Transform backend data to frontend format
-        return transformReportData(result.data);
+        return transformReportData(result.data || result);
       } else {
         // Handle different error types
-        if (result.status === 404) {
+        if (response.status === 404) {
           console.log('❌ Report not found:', reportId);
           return null;
-        } else if (result.status === 401) {
-          console.error('❌ Unauthorized - token invalid');
-          showError('Sesi Anda telah berakhir. Silakan login kembali.');
-
-          setTimeout(() => {
-            authManager.logout();
-          }, 2000);
-
-          return null;
-        } else if (result.status === 403) {
-          console.error('❌ Forbidden - not your report');
-          showError('Anda tidak memiliki akses ke laporan ini.');
-          return null;
         } else {
-          console.error('❌ API error:', result.error);
-          showError(result.message || 'Gagal mengambil data laporan.');
+          console.error('❌ API error:', response.status);
+          const errorData = await response.json().catch(() => ({}));
+          showError(errorData.message || 'Gagal mengambil data laporan.');
           return null;
         }
       }
@@ -560,8 +470,8 @@
     } catch (error) {
       console.error('❌ Exception fetching report:', error);
 
-      if (error.message && error.message.includes('Network')) {
-        showError('Koneksi internet bermasalah. Periksa koneksi Anda.');
+      if (error.message && error.message.includes('Failed to fetch')) {
+        showError('Koneksi internet bermasalah atau server backend tidak berjalan. Periksa koneksi Anda.');
       } else {
         showError('Terjadi kesalahan saat mengambil data. Pastikan server backend berjalan.');
       }
