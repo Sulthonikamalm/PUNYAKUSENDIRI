@@ -38,6 +38,13 @@
     // INITIALIZE
     // ============================================
     function init() {
+        // Require authentication
+        if (!authManager.requireAuth()) {
+            return; // Will redirect to login
+        }
+
+        console.log('✅ User authenticated:', authManager.getCurrentUser().name);
+
         initChoiceCards();
         initStep1();
         initStep2();
