@@ -949,27 +949,148 @@
     }
 
     // ============================================
-    // FORM SUBMISSION
+    // FORM SUBMISSION - Backend API Integration
     // ============================================
-    function submitForm() {
+    async function submitForm() {
         console.log('=== FORM SUBMISSION ===');
         console.log('Final Form Data:', formData);
-        
-        // Generate report code
-        const reportCode = generateReportCode();
-        formData.reportCode = reportCode;
-        formData.timestamp = new Date().toISOString();
-        
-        // Save to localStorage
-        saveToLocalStorage();
-        
-        // Show success message
-        alert(`✅ Pengaduan Berhasil Dikirim!\n\nKode Laporan: ${reportCode}\n\nSimpan kode ini untuk melihat progress laporan Anda.`);
-        
-        // Redirect to home
-        setTimeout(() => {
-            window.location.href = '../Landing Page/Landing_Page.html';
-        }, 2000);
+        console.log('Uploaded Files:', uploadedFiles);
+
+        // Show loading state
+        const btnKirimPengaduan = document.getElementById('btnKirimPengaduan');
+        const originalText = btnKirimPengaduan.innerHTML;
+        btnKirimPengaduan.disabled = true;
+        btnKirimPengaduan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+        try {
+            // Build FormData for multipart/form-data upload
+            const formDataToSend = new FormData();
+
+            // Add text fields (using frontend naming convention - backend will map)
+            formDataToSend.append('nama', formData.namaKorban || 'Anonim'); // Optional, default to Anonim
+            formDataToSend.append('emailKorban', formData.emailKorban || '');
+            formDataToSend.append('genderKorban', formData.genderKorban || '');
+            formDataToSend.append('usiaKorban', formData.usiaKorban || '');
+            formDataToSend.append('whatsappKorban', formData.whatsappKorban || '');
+            formDataToSend.append('waktuKejadian', formData.waktuKejadian || '');
+            formDataToSend.append('lokasiKejadian', formData.lokasiKejadian || '');
+            formDataToSend.append('detailKejadian', formData.detailKejadian || '');
+            formDataToSend.append('kategori', 'Lainnya'); // Default category
+            formDataToSend.append('kehawatiran', formData.kehawatiran || 'sedikit');
+            formDataToSend.append('source', 'manual');
+
+            // Add additional fields
+            if (formData.pelakuKekerasan) {
+                formDataToSend.append('pelaku', formData.pelakuKekerasan);
+            }
+
+            if (formData.korban) {
+                formDataToSend.append('status_korban', formData.korban);
+            }
+
+            // Add disabilitas info if provided
+            if (formData.disabilitasStatus === 'ya' && formData.jenisDisabilitas) {
+                formDataToSend.append('jenis_pelanggaran', formData.jenisDisabilitas);
+            }
+
+            // Add multiple files (IMPORTANT: use 'bukti_files[]' for array)
+            if (uploadedFiles.length > 0) {
+                uploadedFiles.forEach((file) => {
+                    formDataToSend.append('bukti_files[]', file, file.name);
+                });
+                console.log(`✅ Adding ${uploadedFiles.length} files to upload`);
+            }
+
+            // Debug: Log what we're sending
+            console.log('📤 Sending report to backend...');
+            console.log('Fields being sent:');
+            for (let pair of formDataToSend.entries()) {
+                if (pair[1] instanceof File) {
+                    console.log(`  ${pair[0]}: [File] ${pair[1].name} (${(pair[1].size / 1024 / 1024).toFixed(2)}MB)`);
+                } else {
+                    console.log(`  ${pair[0]}: ${pair[1]}`);
+                }
+            }
+
+            // Send to backend API
+            const result = await apiClient.postFormData(
+                APP_CONFIG.API.ENDPOINTS.REPORTS,
+                formDataToSend
+            );
+
+            if (result.success) {
+                // SUCCESS! 🎉
+                console.log('✅ Report submitted successfully!');
+                console.log('Report data:', result.data);
+
+                const reportId = result.data.id_pelapor || result.data.id;
+
+                // Show success message with REAL report ID from server
+                alert(`✅ Pengaduan Berhasil Dikirim!\n\nKode Laporan: ${reportId}\n\nSimpan kode ini untuk melihat progress laporan Anda di menu Monitoring.`);
+
+                // Optional: Save to localStorage as backup
+                try {
+                    const existingReports = JSON.parse(localStorage.getItem('laporFormData')) || [];
+                    existingReports.push({
+                        reportId: reportId,
+                        submittedAt: new Date().toISOString(),
+                        status: 'submitted',
+                        kategori: formData.kategori || 'Lainnya'
+                    });
+                    localStorage.setItem('laporFormData', JSON.stringify(existingReports));
+                    console.log('✅ Report ID saved to localStorage');
+                } catch (e) {
+                    console.warn('Failed to save to localStorage:', e);
+                }
+
+                // Redirect to monitoring page with report ID
+                setTimeout(() => {
+                    window.location.href = `../Monitoring/monitoring.html?id=${reportId}`;
+                }, 2000);
+
+            } else {
+                // FAILED - show error
+                console.error('❌ Failed to submit report:', result.error);
+
+                let errorMessage = 'Gagal mengirim pengaduan. ';
+
+                if (result.status === 422) {
+                    // Validation errors
+                    errorMessage += 'Periksa kembali data yang Anda isi:\n';
+                    if (result.details) {
+                        Object.keys(result.details).forEach(field => {
+                            const fieldErrors = result.details[field];
+                            const errorText = Array.isArray(fieldErrors) ? fieldErrors[0] : fieldErrors;
+                            errorMessage += `\n• ${errorText}`;
+                        });
+                    }
+                } else if (result.status === 401) {
+                    errorMessage += 'Sesi Anda telah berakhir. Silakan login kembali.';
+                    setTimeout(() => {
+                        window.location.href = '../auth/login.html';
+                    }, 2000);
+                    return;
+                } else {
+                    errorMessage += result.message || 'Terjadi kesalahan. Silakan coba lagi.';
+                }
+
+                alert('❌ ' + errorMessage);
+
+                // Reset button
+                btnKirimPengaduan.disabled = false;
+                btnKirimPengaduan.innerHTML = originalText;
+            }
+
+        } catch (error) {
+            // EXCEPTION - network error, etc
+            console.error('❌ Exception during submission:', error);
+
+            alert('❌ Terjadi kesalahan:\n' + error.message + '\n\nPastikan koneksi internet Anda stabil dan backend server berjalan.');
+
+            // Reset button
+            btnKirimPengaduan.disabled = false;
+            btnKirimPengaduan.innerHTML = originalText;
+        }
     }
 
     function generateReportCode() {
