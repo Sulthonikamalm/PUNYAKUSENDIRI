@@ -48,6 +48,12 @@
   // INITIALIZATION
   // ============================================
   function init() {
+    // Require authentication
+    if (!authManager.requireAuth()) {
+      return; // Will redirect to login
+    }
+
+    console.log('✅ User authenticated:', authManager.getCurrentUser().name);
     console.log('🚀 Monitoring System v3.0 Initializing...');
 
     // Generate particles
