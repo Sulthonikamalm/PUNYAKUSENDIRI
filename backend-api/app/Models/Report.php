@@ -15,6 +15,7 @@ class Report extends Model
      * The attributes that are mass assignable.
      */
     protected $fillable = [
+        'user_id',
         'id_pelapor',
         'source',
         'nama',
@@ -23,12 +24,17 @@ class Report extends Model
         'tanggal_kejadian',
         'hari_kejadian',
         'lokasi_kejadian',
+        'lokasi',
         'kronologi',
+        'deskripsi',
         'kategori',
+        'jenis_pelanggaran',
         'status',
+        'status_pelanggaran',
         'tingkat_khawatir',
         'resume_laporan',
         'catatan_admin',
+        'bukti_file_path',
     ];
 
     /**
@@ -77,5 +83,21 @@ class Report extends Model
     public function scopeRecent($query, $days = 30)
     {
         return $query->where('created_at', '>=', now()->subDays($days));
+    }
+
+    /**
+     * Scope queries by status_pelanggaran
+     */
+    public function scopeByStatusPelanggaran($query, $statusPelanggaran)
+    {
+        return $query->where('status_pelanggaran', $statusPelanggaran);
+    }
+
+    /**
+     * Report belongs to a user
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
