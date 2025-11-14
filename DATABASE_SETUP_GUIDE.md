@@ -1,5 +1,15 @@
 # 🗄️ PANDUAN LENGKAP SETUP DATABASE SIGAP PPKS
 
+## ⚠️ **PENTING - KONFIGURASI MYSQL**
+
+**MySQL Root Password: KOSONG (NO PASSWORD)**
+- Semua command MySQL di panduan ini **TIDAK menggunakan password** (`-p` flag dihilangkan)
+- Jika Anda menggunakan XAMPP, default root password adalah **kosong**
+- File `.env` sudah dikonfigurasi dengan `DB_PASSWORD=` (kosong)
+- Semua command: `mysql -u root` (tanpa `-p`)
+
+---
+
 ## 📋 **RINGKASAN DATABASE**
 
 Database `sigap_ppks` adalah jantung dari sistem SIGAP PPKS dengan **5 tabel utama**:
@@ -263,26 +273,26 @@ net start mysql
 
 **Verifikasi MySQL Running:**
 ```bash
-# Test koneksi
-mysql -u root -p
-# Ketik password (kosong untuk XAMPP default)
+# Test koneksi (NO PASSWORD - langsung Enter)
+mysql -u root
 # Jika berhasil, akan muncul prompt mysql>
+# Ketik EXIT; untuk keluar
 ```
 
 ---
 
 ### **Langkah 2: Buat Database**
 
-**Opsi A: Via MySQL Command Line**
+**Opsi A: Via MySQL Command Line (NO PASSWORD)**
 ```bash
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS sigap_ppks;"
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS sigap_ppks;"
 ```
 
-**Opsi B: Via MySQL Prompt**
-```sql
-mysql -u root -p
-# Setelah masuk ke mysql>
+**Opsi B: Via MySQL Prompt (NO PASSWORD)**
+```bash
+mysql -u root
 
+# Setelah masuk ke mysql>, jalankan:
 CREATE DATABASE IF NOT EXISTS sigap_ppks;
 SHOW DATABASES;  -- Verify database created
 USE sigap_ppks;
@@ -348,10 +358,10 @@ php artisan tinker
 >>> exit
 ```
 
-**Atau via MySQL:**
-```sql
-mysql -u root -p sigap_ppks -e "SHOW TABLES;"
-mysql -u root -p sigap_ppks -e "SELECT * FROM users;"
+**Atau via MySQL (NO PASSWORD):**
+```bash
+mysql -u root sigap_ppks -e "SHOW TABLES;"
+mysql -u root sigap_ppks -e "SELECT * FROM users;"
 ```
 
 ---
@@ -670,9 +680,9 @@ SELECT '✅ Database setup complete!' AS status;
 
 ### **Langkah 2: Import SQL File**
 
-**Via Command Line:**
+**Via Command Line (NO PASSWORD):**
 ```bash
-mysql -u root -p < sigap_ppks_setup.sql
+mysql -u root < sigap_ppks_setup.sql
 ```
 
 **Via phpMyAdmin:**
@@ -800,9 +810,17 @@ SQLSTATE[HY000] [1045] Access denied for user 'root'
 ```
 
 **Solusi:**
-1. Check password di `.env` (line 28)
-2. XAMPP default: password kosong
-3. Update `.env`: `DB_PASSWORD=` (kosong)
+1. Pastikan password di `.env` adalah **KOSONG**
+2. File `.env` line 28: `DB_PASSWORD=` (tanpa nilai apapun)
+3. Jika masih error, test koneksi manual:
+   ```bash
+   mysql -u root
+   # Jika berhasil masuk, berarti password memang kosong
+   ```
+4. Jika menggunakan MySQL non-XAMPP dengan password, update `.env`:
+   ```
+   DB_PASSWORD=your_actual_password
+   ```
 
 ---
 
@@ -811,9 +829,9 @@ SQLSTATE[HY000] [1045] Access denied for user 'root'
 SQLSTATE[HY000] [1049] Unknown database 'sigap_ppks'
 ```
 
-**Solusi:**
+**Solusi (NO PASSWORD):**
 ```bash
-mysql -u root -p -e "CREATE DATABASE sigap_ppks;"
+mysql -u root -e "CREATE DATABASE sigap_ppks;"
 ```
 
 ---
@@ -869,13 +887,13 @@ sudo yum install php-mysql        # CentOS
 - [ ] Enable SSL untuk MySQL connection
 - [ ] Rotate Laravel APP_KEY secara berkala
 
-### **Backup Command:**
+### **Backup Command (NO PASSWORD):**
 ```bash
 # Backup database
-mysqldump -u root -p sigap_ppks > backup_$(date +%Y%m%d).sql
+mysqldump -u root sigap_ppks > backup_$(date +%Y%m%d).sql
 
 # Restore database
-mysql -u root -p sigap_ppks < backup_20251114.sql
+mysql -u root sigap_ppks < backup_20251114.sql
 ```
 
 ---
